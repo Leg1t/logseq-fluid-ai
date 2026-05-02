@@ -1,110 +1,108 @@
-# Logseq AI Assistant
+# logseq-fluid-ai
 
-A powerful tool that enhances your Logseq experience by allowing you to interact with AI models like OpenAI's `gpt-3.5-turbo`.
+A fork of [logseq-plugin-ai-assistant](https://github.com/ahonn/logseq-plugin-ai-assistant) with extended context, PDF integration, side-page chat, and a focused prompt set built around a note-taking workflow.
 
-<a href="https://www.buymeacoffee.com/yuexunjiang"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=yuexunjiang&button_colour=FFDD00&font_colour=000000&font_family=Comic&outline_colour=000000&coffee_colour=ffffff" /></a>
+---
 
-With this plugin, you can effortlessly generate or transform text using custom prompts,
-enabling you to achieve more efficient and creative workflows within Logseq.
+## What's new
 
-![](https://user-images.githubusercontent.com/9718515/226260897-d5e39c09-4714-4d23-b004-28a2391512c4.gif)
+**Flexible context**
+Commands can draw from the current block, the full page, or everything written above the cursor — not just the block you run the command on.
 
-> Inspired by [Notion AI](https://www.notion.so/product/ai) and [Raycast AI](https://www.raycast.com/ai)
+**PDF integration**
+On any Logseq PDF annotation page (one with a `file-path::` property), AI commands automatically include the PDF text as context. No setup needed. Limit extraction to a specific chapter by writing `pdf-page-range:: 10 50` in a block above the cursor. Hard ceiling is ~120,000 characters (~30,000 tokens, roughly 30–40 dense pages). If you are reading a longer pdf, you can use the pdfPageRange property.
 
-## Features
-- Seamless integration with Logseq
-- Customizable prompt support
-- Easy-to-use built-in prompts 
-- Using a custom Open AI basePath
+**Side-page chat**
+`/Open Chat` and `/New Chat` create a dedicated `AI/PageName` note, open it in the right sidebar, and drop a backlink in your source note. `/Ask (chat)` continues the conversation there with your original notes automatically included as background context.
 
-## Install
+**Block output control**
+Responses can be inserted as sibling blocks or children. Multi-block output splits on newlines so each line becomes its own block — used for flashcards, definitions, and lists.
 
-### Option 1: directly install via Marketplace
+**Streaming**
+Optional per-prompt or global setting that pipes tokens into the block as they arrive. Best for long responses; leave off for short commands.
 
-### Option 2: manually load
+**Sanitizer**
+Responses are automatically cleaned before writing, hopefully preventing Logseq's "multiple unordered lists not supported" block error.
 
-- turn on Logseq developer mode
-- [download the prebuilt package here](https://github.com/ahonn/logseq-plugin-ai-assistant/releases)
-- unzip the zip file and load from Logseq plugins page
+---
 
-## Configuration
-Before using the plugin, you need to configure it according to your preferences.
+## Commands
 
-- **API Key**: Enter your OpenAI API key in this field. If you don't have an API key yet, visit the [OpenAI](https://platform.openai.com/account/api-keys) to obtain one.
-- **Model**: Choose the OpenAI model you want to use, such as "gpt-3.5-turbo". Different models may offer varying levels of performance and text generation capabilities.
-- **Custom Prompts**: Enable this option if you want to use custom prompts for generating or transforming text. You can add, edit, or remove prompts in the prompts array.
+| Command | Context | Output | Description |
+|---|---|---|---|
+| Quick Ask | Block | Insert (child) | Answer the question in the current block |
+| Ask (chat) | Section above + source page | Insert (sibling) | Continue a conversation in a side-page note |
+| Ask (PDF) | Page + PDF | Insert (sibling) | Answer using the annotation page's PDF as primary source |
+| Open Chat | — | Side page | Open or resume the persistent chat page for this note |
+| New Chat | — | Side page | Create a new timestamped chat page for this note |
+| Flashcard (block) | Block | Insert (sibling) | One flashcard from the current block |
+| Flashcard (page) | Page | Insert (siblings) | Flashcards for new content on the page, skips existing `#card` blocks |
+| Flashcard (page, PDF context) | Page + PDF | Insert (siblings) | Same but PDF gives richer context for better cards |
+| Flashcard (PDF only) | PDF | Insert (siblings) | Flashcards directly from the PDF source material |
+| Define | Block | Insert (siblings) | One-sentence definitions for unfamiliar terms in the block |
+| Tighten | Block | Replace | Fix grammar and spelling in place, minimal changes, `[ai: note]` for added context |
+| Rework | Page | Replace | Rewrite the current block per the instruction written in the block above it |
 
-## Built-in Prompts
+---
 
-The plugin comes with several built-in prompts to enhance your text editing experience
+## Settings
 
-- **Ask AI**: Ask a question, and the AI will provide a helpful answer.
-- **Summarize**: Provide a concise summary of the text.
-- **Make Shorter**: Shorten the text while maintaining its key points.
-- **Make Longer**: Expand the text, providing more details and depth.
-- **Change Tone to Friendly**: Rewrite the text with a friendly tone.
-- **Change Tone to Confident**: Rewrite the text with a confident tone.
-- **Change Tone to Casual**: Rewrite the text with a casual tone.
-- **Change Tone to Professional**: Rewrite the text with a more professional tone.
-- **Explain This**: Provide a clear explanation for the text or code snippet.
-- **Generate Ideas**: Generate creative ideas related to the selected topic.
+| Setting | Default | Description |
+|---|---|---|
+| API Key | — | Your OpenAI API key |
+| Base Path | `https://api.openai.com/v1` | Override for proxies or alternative providers |
+| Model | `gpt-4o-mini` | Global default model |
+| Tag | `[[AI]]` | Appended to every AI-generated block |
+| Streaming | `false` | Stream tokens into blocks as they arrive |
+| Auto PDF | `true` | Automatically include PDF context on annotation pages |
 
-See all built-in prompts [here](https://github.com/ahonn/logseq-plugin-ai-assistant/tree/master/src/prompts)
+---
 
-## How to Use a Custom Prompt
+## Custom prompts
 
-- Open the plugin settings and locate "customPrompts" field.
-
-- Add the following JSON object to the "prompts" array:
-
-```json
-{
-  "apiKey": "<your-api-key>",
-  "model": "gpt-3.5-turbo",
-  "customPrompts": {
-    "enable": true, // <- Make sure to enable this.
-    "prompts": [
-      {
-        "name": "Markdown Table",
-        "prompt": "Please generate a {{text}} Markdown table",
-        "output": "replace" // "property", "replace" or "insert"
-      }
-    ]
-  },
-  "disabled": false
-}
-```
-
-- In the Logseq editor, focus the cursor on the place where you want to generate the table and do the following.
-![](https://user-images.githubusercontent.com/9718515/226259576-a1193b51-8a57-4cad-9270-f5bc30a5ba29.gif)
-
-## Contribution
-Issues and PRs are welcome!
-
-## Licence
-MIT
-
-## How to Specify a Model for Individual Custom Prompts
-
-- Open the plugin settings and locate the "customPrompts" field.
-
-- Add the following JSON object to the "prompts" array, specifying a model for an individual prompt:
+Enable in settings under `customPrompts`. Each prompt is a JSON object:
 
 ```json
 {
-  "apiKey": "<your-api-key>",
-  "model": "gpt-3.5-turbo",
-  "customPrompts": {
-    "enable": true, // <- Make sure to enable this.
-    "prompts": [
-      {
-        "name": "Markdown Table",
-        "prompt": "Please generate a {{text}} Markdown table",
-        "output": "replace", // "property", "replace" or "insert"
-        "model": "gpt-4" // Specify the model for this prompt
-      }
-    ]
-  },
-  "disabled": false
+  "name": "My Command",
+  "system": "You are a helpful assistant.",
+  "prompt": "Do something with this:\n{content}",
+  "output": "insert",
+  "context": "block",
+  "model": "gpt-4o",
+  "sibling": false,
+  "multiBlock": false,
+  "usePdf": false,
+  "pdfPageRange": [1, 50],
+  "streaming": false,
+  "outputMode": "inline",
+  "includeSourcePage": false
 }
 ```
+
+| Field | Required | Options / Notes |
+|---|---|---|
+| `name` | ✓ | Slash command name |
+| `prompt` | ✓ | Use `{content}` or `{{text}}` as the context placeholder |
+| `output` | ✓ | `insert` · `replace` · `append` · `property` |
+| `system` | — | System prompt. Defaults to generic helpful assistant |
+| `model` | — | Overrides global model for this command |
+| `context` | — | `block` *(default)* · `page` · `section-above` |
+| `outputMode` | — | `inline` *(default)* · `side-page` |
+| `sibling` | — | `false` *(child block, default)* · `true` *(peer block)* |
+| `multiBlock` | — | `false` *(default)* · `true` — one block per line, disables streaming |
+| `usePdf` | — | `false` *(default)* · `true` — force PDF context regardless of autoPdf setting |
+| `pdfPageRange` | — | `[first, last]` 1-based inclusive, e.g. `[10, 50]` |
+| `streaming` | — | Overrides global streaming setting for this command |
+| `includeSourcePage` | — | `true` — prepend source page notes when running from an `AI/` chat page |
+
+## Building from source
+
+```bash
+git clone https://github.com/Leg1t/logseq-fluid-ai
+cd logseq-fluid-ai
+pnpm install
+pnpm build
+```
+
+Load in Logseq: **Settings → Advanced → Developer mode → Plugins → Load unpacked plugin** → select the repo folder.
