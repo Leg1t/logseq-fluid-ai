@@ -1,3 +1,29 @@
+# 1.0.0 (2026-05-02)
+
+
+### Bug Fixes
+
+* add default system prompt when none is provided to allow for backwards compatibility ([b015aa1](https://github.com/Leg1t/logseq-fluid-ai/commit/b015aa112950ecd91967190535810ee97e45f431))
+* add tag based on the PromptOutputType, [#2](https://github.com/Leg1t/logseq-fluid-ai/issues/2) ([00252a8](https://github.com/Leg1t/logseq-fluid-ai/commit/00252a899a84f17d6cfa18ddf25d7a967c41f89e))
+* fix tag ([084a8bb](https://github.com/Leg1t/logseq-fluid-ai/commit/084a8bbb14a8d16a04d1acb1c9b4a388b9368c25))
+* update pnpm-lock.yaml to match package.json ([a97a605](https://github.com/Leg1t/logseq-fluid-ai/commit/a97a605fd00e63383e94c271004ffe6730ad1501))
+* version number and trigger release ([409044a](https://github.com/Leg1t/logseq-fluid-ai/commit/409044a785b471dd62c4492b3d4b9fc5b2272d15))
+
+
+### Features
+
+* add basePath and auto reload setting ([66032dc](https://github.com/Leg1t/logseq-fluid-ai/commit/66032dc5787ca2cb1f44a0aee0162944cf14409c))
+* add basic impl ([d445fd3](https://github.com/Leg1t/logseq-fluid-ai/commit/d445fd3fe59f54790a35ad836f79b19c1afaa0bf))
+* add LICENSE ([a56b14e](https://github.com/Leg1t/logseq-fluid-ai/commit/a56b14e9595ecd20bcd4cdc51405f4a00e266e9b))
+* add model to custom prompts ([3752182](https://github.com/Leg1t/logseq-fluid-ai/commit/375218207dcdf133bce5dfaa4260d4254c7124ba))
+* add more preset prompts and add new output type ([4bbdce5](https://github.com/Leg1t/logseq-fluid-ai/commit/4bbdce5a37d6d0557ca82cc8c36ffd1f8edc6446))
+* add setting for add specific tags to AI-generated content ([9500e57](https://github.com/Leg1t/logseq-fluid-ai/commit/9500e57156a0642aa9e917ae5e1278684639f575))
+* change to use ChatOpenAI ([330c371](https://github.com/Leg1t/logseq-fluid-ai/commit/330c37103cd439056001fb12e136d4a9adbbb780))
+* get and send all the children blocks with getBlockContent ([fa188cd](https://github.com/Leg1t/logseq-fluid-ai/commit/fa188cd79dc01579ed99f8c4b5ce53ae60f37ff1))
+* refactor prompts to use ChatPromptTemplate and separate system/user instructions ([d584eb7](https://github.com/Leg1t/logseq-fluid-ai/commit/d584eb77c5784d7aba3dd9911b22378c68333fb3))
+* update @langchain/openai ([c2b409f](https://github.com/Leg1t/logseq-fluid-ai/commit/c2b409f454536d40824c407abf5c47862221f826))
+* update plugin options and add readme ([7ac2163](https://github.com/Leg1t/logseq-fluid-ai/commit/7ac216333bd2d8b69b31565e31209ec298548ee6))
+
 # [1.6.0](https://github.com/ahonn/logseq-plugin-ai-assistant/compare/v1.5.0...v1.6.0) (2025-02-27)
 
 
