@@ -10,3 +10,4 @@ export * from './new-chat';
 export * from './define';
 export * from './tighten';
 export * from './rework';
+export * from './research';

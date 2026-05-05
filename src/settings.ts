@@ -33,15 +33,15 @@ const settings: SettingSchemaDesc[] = [
     key: 'model',
     type: 'string',
     title: 'Model',
-    description: 'e.g. "gpt-4o" or "gpt-3.5-turbo".',
-    default: 'gpt-3.5-turbo',
+    description: 'e.g. "gpt-4o" or "gpt-4o-mini".',
+    default: 'gpt-4o-mini',
   },
   {
     key: 'tag',
     type: 'string',
     title: 'Tag',
     description: 'Appended to every AI-generated block.',
-    default: '[[🤖]]',
+    default: '[[AI]]',
   },
   {
     key: 'streaming',
