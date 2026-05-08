@@ -8,6 +8,7 @@ export interface ISettings {
   tag: string;
   streaming: boolean;
   autoPdf: boolean;
+  maxTokens: number;
   customPrompts: {
     enable: boolean;
     prompts: IPrompt[];
@@ -37,11 +38,18 @@ const settings: SettingSchemaDesc[] = [
     default: 'gpt-4o-mini',
   },
   {
+    key: 'maxTokens',
+    type: 'number',
+    title: 'Max Context Tokens',
+    description: 'Maximum tokens to use for context (notes + PDF). A sliding window keeps the most recent content. 1 token ≈ 4 characters.',
+    default: 100000,
+  },
+  {
     key: 'tag',
     type: 'string',
     title: 'Tag',
     description: 'Appended to every AI-generated block.',
-    default: '[[AI]]',
+    default: 'AI',
   },
   {
     key: 'streaming',
@@ -56,14 +64,14 @@ const settings: SettingSchemaDesc[] = [
     type: 'boolean',
     title: 'Auto-attach PDF',
     description:
-      'When you run any AI command on a PDF annotation page (one with a file-path:: property), automatically include the PDF text as context — no need to set usePdf per prompt.',
+      'When you run any AI command on a PDF annotation page, automatically include the PDF text as context.',
     default: true,
   },
   {
     key: 'customPrompts',
     type: 'object',
     title: 'Custom Prompts',
-    description: 'Enable and manage custom prompts.',
+    description: 'Enable and manage custom prompts. You can override maxTokens here.',
     default: { enable: false, prompts: [] },
   },
 ];

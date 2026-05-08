@@ -154,6 +154,7 @@ function getPrompts(): IPrompt[] {
   return prompts;
 }
 
+
 function main() {
   const {
     apiKey,
@@ -177,7 +178,6 @@ function main() {
       context: contextType   = ContextType.block,
       outputMode             = OutputMode.inline,
       usePdf                 = false,
-      pdfPageRange,
       multiBlock             = false,
       streaming: promptStreaming,
       sibling                = false,
@@ -192,52 +192,61 @@ function main() {
       const block = await logseq.Editor.getBlock(uuid, { includeChildren: true });
       if (!block) return;
 
-      // ── 1. context ──────────────────────────────────────────────────────────
+      // ── 0. Setup Token Limits ────────────────────────────────────────────────
+      const { maxTokens: globalMaxTokens } = logseq.settings as unknown as ISettings; // removed duplicate autoPdf destructuring here as it's defined globally above
+      const tokenLimit = promptDef.maxTokens || globalMaxTokens || 100000;
+      const maxCharsTotal = tokenLimit * 4;
+      const outputReserveChars = 4000;
+      const maxInputChars = Math.max(1000, maxCharsTotal - outputReserveChars);
+
+      // ── 1. Base Context & Regex Page Extraction ──────────────────────────────
       let content = await gatherContext(block, contextType);
+      
+      let dynamicPageRange: [number, number] | undefined = undefined; 
+      const userPromptText = block.content || '';
+      
+      const pageRangeRegex = /(?:pages?|p\.?)\s*(\d+)(?:\s*(?:-|to)\s*(\d+))?/i;
+      const match = userPromptText.match(pageRangeRegex);
+      if (match) {
+        const start = parseInt(match[1], 10);
+        const end = match[2] ? parseInt(match[2], 10) : start;
+        dynamicPageRange = [start, end];
+      }
 
-      // ── 2. PDF context ───────────────────────────────────────────────────────
+      // ── 2. Source Page Context (for chat pages) ──────────────────────────────
       const currentPage = await logseq.Editor.getPage(block.page.id);
-      const pdfPath = currentPage ? await getPagePdfPath(currentPage.name) : null;
-      const shouldUsePdf = usePdf || (globalAutoPdf && !!pdfPath);
+      if (includeSourcePage) {
+        const blocks = await logseq.Editor.getPageBlocksTree(currentPage?.name ?? '');
+        const firstBlock = blocks?.[0];
 
-      if (shouldUsePdf && pdfPath) {
-        let dynamicPageRange = pdfPageRange;
-
-        const blocksTree = await logseq.Editor.getPageBlocksTree(currentPage!.name);
-        if (blocksTree && blocksTree.length > 0) {
-          const flatBlocks: any[] = [];
-          const flatten = (nodes: any[]) => {
-            for (const n of nodes) {
-              flatBlocks.push(n);
-              if (n.children?.length) flatten(n.children);
-            }
-          };
-          flatten(blocksTree);
-
-          const blockIndex = flatBlocks.findIndex(b => b.uuid === block.uuid);
-          if (blockIndex !== -1 && !dynamicPageRange) {
-            for (let i = blockIndex - 1; i >= 0; i--) {
-              const rangeProp =
-                flatBlocks[i]?.properties?.pdfPageRange ??
-                flatBlocks[i]?.properties?.['pdf-page-range'];
-              if (rangeProp) {
-                const match = rangeProp.match(/(\d+)[\s-,]+(\d+)/);
-                if (match) {
-                  dynamicPageRange = [parseInt(match[1], 10), parseInt(match[2], 10)];
-                  break;
-                }
-              }
+        let sourceName =
+          firstBlock?.properties?.aiSource ??
+          firstBlock?.properties?.['ai-source'];
+        
+        if (sourceName) {
+          if (typeof sourceName === 'string') {
+            sourceName = sourceName.replace(/^\[\[|\]\]$/g, '');
+          }
+          const sourcePage = await logseq.Editor.getPage(sourceName);
+          if (sourcePage) {
+            const sourceContent = await getPageContent(sourcePage.name);
+            if (sourceContent?.trim()) {
+              content = `[Source notes: "${sourceName}"]\n${sourceContent}\n\n---\n\n${content}`;
             }
           }
         }
-
-        const pdfText = await getPdfContent(pdfPath, dynamicPageRange);
-        if (pdfText) {
-          content = `[PDF content]\n${pdfText}\n\n---\n\n[Notes / question]\n${content}`;
-        }
       }
 
-      // ── 2b. skipModel — page setup only, no AI call ──────────────────────────
+      // ── 3. PDF Context ───────────────────────────────────────────────────────
+      const pdfPath = currentPage ? await getPagePdfPath(currentPage.name) : null;
+      const shouldUsePdf = usePdf || (globalAutoPdf && !!pdfPath);
+
+      let pdfText = '';
+      if (shouldUsePdf && pdfPath) {
+         pdfText = await getPdfContent(pdfPath, dynamicPageRange) || '';
+      }
+
+      // ── 4. skipModel (Page Setup Only, e.g., New Chat) ───────────────────────
       if (skipModel) {
         const sourceName = currentPage?.name ?? 'Untitled';
         const aiPageName = newChat
@@ -264,31 +273,25 @@ function main() {
         return;
       }
 
-      // ── 2c. source page context (for chat pages) ─────────────────────────────
-      if (includeSourcePage) {
-        const blocks = await logseq.Editor.getPageBlocksTree(currentPage?.name ?? '');
-        const firstBlock = blocks?.[0];
+      // ── 5. Token Sliding Window / Prioritization ─────────────────────────────
+      let notesChars = content.length;
+      let pdfChars = pdfText.length;
 
-
-        let sourceName =
-          firstBlock?.properties?.aiSource ??
-          firstBlock?.properties?.['ai-source'];
-       
-
-        if (!sourceName) {
-          console.warn('[logseq-ai] missing ai-source property on this page');
+      if (notesChars + pdfChars > maxInputChars) {
+        if (notesChars >= maxInputChars) {
+            // Notes alone are too big. Truncate from the TOP (keep recent chat at bottom)
+            content = '...\n' + content.slice(-(maxInputChars - 10));
+            pdfText = ''; // Drop PDF entirely to save the conversation
         } else {
-          if (typeof sourceName === 'string') {
-            sourceName = sourceName.replace(/^\[\[|\]\]$/g, '');
-          }
-          const sourcePage = await logseq.Editor.getPage(sourceName);
-          if (sourcePage) {
-            const sourceContent = await getPageContent(sourcePage.name);
-            if (sourceContent?.trim()) {
-              content = `[Source notes: "${sourceName}"]\n${sourceContent}\n\n---\n\n${content}`;
-            }
-          }
+            // Notes fit, but PDF is too big. Truncate the PDF.
+            const remainingForPdf = maxInputChars - notesChars;
+            pdfText = pdfText.slice(0, remainingForPdf) + '\n... [PDF TRUNCATED DUE TO TOKEN LIMITS]';
         }
+      }
+
+      // ── 6. Final Assembly ────────────────────────────────────────────────────
+      if (pdfText) {
+        content = `[PDF content]\n${pdfText}\n\n---\n\n[Notes / question]\n${content}`;
       }
 
       // ── 3. streaming decision ────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-import { IPrompt, PromptOutputType } from './type';
+import { IPrompt, PromptOutputType, ContextType, OutputMode } from './type';
 
 export const AskPdf: IPrompt = {
   name: 'Ask (PDF)',
@@ -6,13 +6,11 @@ export const AskPdf: IPrompt = {
 Reply ONLY to the last question — treat this like a focused chat.
 Be clear and concise. Cite page numbers when it helps.
 No verbose preamble, no filler.`,
-  prompt: `{content}
-
-Answer the last question in [Notes / question] using the [PDF content] above.`,
+  prompt: `{content}\n\nAnswer the last question in [Notes / question] using the [PDF content] above.`,
   output: PromptOutputType.insert,
   model: 'gpt-4o',
-  context: 'page' as any,
-  outputMode: 'inline' as any,
+  context: ContextType.page,
+  outputMode: OutputMode.inline,
   usePdf: true,
   sibling: true,
 };

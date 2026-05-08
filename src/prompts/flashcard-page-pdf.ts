@@ -1,4 +1,4 @@
-import { IPrompt, PromptOutputType } from './type';
+import { IPrompt, PromptOutputType, ContextType } from './type';
 
 export const FlashcardPagePdf: IPrompt = {
   name: 'Flashcard (page + PDF context)',
@@ -18,7 +18,7 @@ Rules:
 {content}`,
   output: PromptOutputType.insert,
   model: 'gpt-4o',
-  context: 'page' as any,
+  context: ContextType.page,
   usePdf: true,
   multiBlock: true,
   sibling: false,

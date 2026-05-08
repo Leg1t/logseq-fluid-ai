@@ -1,5 +1,5 @@
 // prompts/ask-chat.ts
-import { IPrompt, PromptOutputType } from './type';
+import { IPrompt, PromptOutputType, ContextType, OutputMode } from './type';
 
 export const AskChat: IPrompt = {
   name: 'Ask (chat)',
@@ -15,8 +15,9 @@ No introductions, no sign-offs, no filler.`,
 Reply to the last message only.`,
   output: PromptOutputType.insert,
   model: 'gpt-4o',
-  context: 'section-above' as any,
-  outputMode: 'inline' as any,
+  context: ContextType.sectionAbove,
+  outputMode: OutputMode.inline,
   sibling: true,
   includeSourcePage: true,
+  maxTokens: 30000, // Override: Chat usually doesn't need 100k tokens
 };

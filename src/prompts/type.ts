@@ -23,6 +23,7 @@ export interface IPrompt {
   output: PromptOutputType;
   format?: string[] | { [key: string]: string };
   model?: string;
+  maxTokens?: number;
 
   context?: ContextType;
   outputMode?: OutputMode;
@@ -33,13 +34,6 @@ export interface IPrompt {
    * the PDF automatically — usePdf is only needed to force it on other pages.
    */
   usePdf?: boolean;
-
-  /**
-   * Limit PDF extraction to a page range, e.g. [1, 50].
-   * Useful when you only care about a chapter.
-   * Defaults to the full document (up to the MAX_CHARS ceiling).
-   */
-  pdfPageRange?: [number, number];
 
   /**
    * Split the response on newlines and insert one sibling block per line.

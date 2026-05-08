@@ -1,12 +1,12 @@
 // prompts/open-chat.ts
-import { IPrompt, PromptOutputType } from './type';
+import { IPrompt, PromptOutputType, ContextType, OutputMode } from './type';
 
 export const OpenChat: IPrompt = {
   name: 'Open Chat',
   prompt: '',
   output: PromptOutputType.insert,
-  context: 'page' as any,
-  outputMode: 'side-page' as any,
+  context: ContextType.page,
+  outputMode: OutputMode.sidePage,
   skipModel: true,
   newChat: false,
 };

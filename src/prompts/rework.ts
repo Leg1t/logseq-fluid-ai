@@ -1,4 +1,4 @@
-import { IPrompt, PromptOutputType } from './type';
+import { IPrompt, PromptOutputType, ContextType } from './type';
 
 export const Rework: IPrompt = {
   name: 'Rework',
@@ -12,5 +12,5 @@ Page context (for understanding and instruction):
 
 Return only the reworked block text.`,
   output: PromptOutputType.replace,
-  context: 'page' as any,
+  context: ContextType.page,
 };

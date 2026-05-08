@@ -1,4 +1,4 @@
-import { IPrompt, PromptOutputType } from './type';
+import { IPrompt, PromptOutputType, ContextType, OutputMode } from './type';
 
 export const Research: IPrompt = {
   name: 'Research',
@@ -15,8 +15,8 @@ Take your time to thoroughly explain concepts, provide examples, and explore nua
 Provide a deep, comprehensive, and well-researched reply to the last message only.`,
   output: PromptOutputType.insert,
   model: 'gpt-4o',
-  context: 'section-above' as any,
-  outputMode: 'inline' as any,
+  context: ContextType.sectionAbove,
+  outputMode: OutputMode.inline,
   sibling: true,
   includeSourcePage: true,
   multiBlock: true, 

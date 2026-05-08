@@ -1,11 +1,11 @@
-import { IPrompt, PromptOutputType } from './type';
+import { IPrompt, PromptOutputType, ContextType, OutputMode } from './type';
 
 export const NewChat: IPrompt = {
   name: 'New Chat',
   prompt: '',
   output: PromptOutputType.insert,
-  context: 'page' as any,
-  outputMode: 'side-page' as any,
+  context: ContextType.page,
+  outputMode: OutputMode.sidePage,
   skipModel: true,
   newChat: true,
 };
