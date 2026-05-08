@@ -10,10 +10,10 @@ A fork of [logseq-plugin-ai-assistant](https://github.com/ahonn/logseq-plugin-ai
 Commands can draw from the current block, the full page, or everything written above the cursor — not just the block you run the command on.
 
 **Smart rate limits & sliding window**
-Never hit OpenAI's token limits on long pages again. You can configure a maximum token limit. The plugin calculates a sliding window: your most recent notes get absolute priority (preserving your active chat), and any attached PDF is dynamically truncated to perfectly fit whatever space is left in your context window.
+You can configure a maximum token limit. The plugin calculates a sliding window: your most recent notes get priority (preserving your active chat), and any attached PDF is dynamically truncated to perfectly fit whatever space is left in your context window. Currently keeping at least 70% percent of what is possible with token limit for the notes.
 
 **PDF integration & dynamic page ranges**
-On any Logseq PDF annotation page (one with a `file-path::` property), AI commands automatically include the PDF text as context. No setup needed. You can limit extraction to a specific chapter just by typing it naturally in your prompt (e.g., `/Ask (PDF) please summarize pages 10-25` or `p 10 to 25`). The plugin intercepts this and only reads those pages.
+On any Logseq PDF annotation page (one with a `file-path::` property), AI commands automatically include the PDF text as context. You can limit extraction to a specific chapter just by typing it naturally in your prompt (e.g., `/Ask (PDF) please summarize pages 10-25` or `p 10 to 25`). The plugin intercepts this and only reads those pages.
 
 **Side-page chat**
 `/Open Chat` and `/New Chat` create a dedicated `AI/PageName` note, open it in the right sidebar, and drop a backlink in your source note. `/Ask (chat)` continues the conversation there with your original notes automatically included as background context.
@@ -22,10 +22,10 @@ On any Logseq PDF annotation page (one with a `file-path::` property), AI comman
 Responses can be inserted as sibling blocks or children. Multi-block output splits on newlines so each line becomes its own block — used for flashcards, definitions, and lists.
 
 **Streaming**
-Optional per-prompt or global setting that pipes tokens into the block as they arrive. Best for long responses; leave off for short commands.
+Optional per-prompt or global setting that pipes tokens into the block as they arrive. Best for long responses.
 
 **Sanitizer**
-Responses are automatically cleaned before writing, preventing Logseq's "multiple unordered lists not supported" block error.
+Responses are automatically cleaned before writing, in order to prevent Logseq's "multiple unordered lists not supported" block error.
 
 ---
 
