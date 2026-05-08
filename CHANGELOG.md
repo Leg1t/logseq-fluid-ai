@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/Leg1t/logseq-fluid-ai/compare/v1.1.0...v1.1.1) (2026-05-08)
+
+
+### Bug Fixes
+
+* added token limit to all gpt 4o prompts. This is a bit uglöy since hardcoded ([a625ec8](https://github.com/Leg1t/logseq-fluid-ai/commit/a625ec85d6377a49d17027495806bed4b03e7811))
+
 # [1.1.0](https://github.com/Leg1t/logseq-fluid-ai/compare/v1.0.0...v1.1.0) (2026-05-08)
 
 
