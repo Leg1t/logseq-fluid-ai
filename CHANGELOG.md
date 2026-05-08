@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/Leg1t/logseq-fluid-ai/compare/v1.0.0...v1.1.0) (2026-05-08)
+
+
+### Features
+
+* implemented sliding window for token limits and dynamic PDF ranges, also removed ranges from prompts directly instead they are now passed with the prompt entered, and cleaned up a bit ([c6fd51b](https://github.com/Leg1t/logseq-fluid-ai/commit/c6fd51be04497be29e604e347b9d329c73ea7d70))
+
 # 1.0.0 (2026-05-02)
 
 
