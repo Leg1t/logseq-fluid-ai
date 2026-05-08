@@ -273,19 +273,31 @@ function main() {
         return;
       }
 
-      // ── 5. Token Sliding Window / Prioritization ─────────────────────────────
+     // ── 5. Token Sliding Window / Prioritization (Minimum Reserve Logic) ─────
       let notesChars = content.length;
       let pdfChars = pdfText.length;
 
       if (notesChars + pdfChars > maxInputChars) {
-        if (notesChars >= maxInputChars) {
-            // Notes alone are too big. Truncate from the TOP (keep recent chat at bottom)
-            content = '...\n' + content.slice(-(maxInputChars - 10));
-            pdfText = ''; // Drop PDF entirely to save the conversation
+        if (pdfChars > 0) {
+          // Guarantee the PDF at least 30% of the total max capacity (if it needs it)
+          const guaranteedPdfChars = Math.min(pdfChars, Math.floor(maxInputChars * 0.3));
+          
+          // Notes get whatever space is left after the PDF's guarantee
+          const notesBudget = Math.min(notesChars, maxInputChars - guaranteedPdfChars);
+          
+          // PDF gets its guarantee, PLUS any space the notes didn't use
+          const pdfBudget = maxInputChars - notesBudget;
+
+          // Apply Truncation
+          if (notesChars > notesBudget) {
+             content = '...\n' + content.slice(-(notesBudget - 10)); // Keep bottom (recent)
+          }
+          if (pdfChars > pdfBudget) {
+             pdfText = pdfText.slice(0, pdfBudget) + '\n... [PDF TRUNCATED DUE TO TOKEN LIMITS]'; // Keep top
+          }
         } else {
-            // Notes fit, but PDF is too big. Truncate the PDF.
-            const remainingForPdf = maxInputChars - notesChars;
-            pdfText = pdfText.slice(0, remainingForPdf) + '\n... [PDF TRUNCATED DUE TO TOKEN LIMITS]';
+          // No PDF at all, just truncate notes from the top
+          content = '...\n' + content.slice(-(maxInputChars - 10));
         }
       }
 

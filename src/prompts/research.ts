@@ -21,4 +21,5 @@ Provide a deep, comprehensive, and well-researched reply to the last message onl
   includeSourcePage: true,
   multiBlock: true, 
   streaming: true, 
+  maxTokens: 20000, // Ensures input + output stays safely under the 30k TPM limit
 };

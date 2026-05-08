@@ -22,4 +22,5 @@ Rules:
   usePdf: true,
   multiBlock: true,
   sibling: false,
+  maxTokens: 20000,
 };

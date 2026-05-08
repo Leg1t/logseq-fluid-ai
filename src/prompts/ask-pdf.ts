@@ -13,4 +13,5 @@ No verbose preamble, no filler.`,
   outputMode: OutputMode.inline,
   usePdf: true,
   sibling: true,
+  maxTokens: 20000, // Keeps gpt-4o safely under the 30k TPM limit
 };
