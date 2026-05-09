@@ -227,3 +227,43 @@ export function sanitizeForLogseq(text: string, singleBlock = true): string {
 
   return result.replace(/\n{3,}/g, '\n\n').trim();
 }
+
+export interface IBatchBlock {
+  content: string;
+  children?: IBatchBlock[];
+}
+
+/**
+ * Parses markdown lists (e.g. "- Question\n  - Answer") into a Logseq block tree.
+ */
+export function parseMarkdownToTree(markdown: string): IBatchBlock[] {
+  const lines = markdown.split('\n').filter(l => l.trim().length > 0);
+  const root: IBatchBlock[] = [];
+  const stack: { level: number; block: IBatchBlock }[] = [];
+
+  for (const line of lines) {
+    // Find leading whitespace to determine level, and strip the "- " or "* " marker
+    const match = line.match(/^(\s*)(?:[-*]\s)?(.*)/);
+    if (!match) continue;
+    
+    const indentLevel = match[1].length;
+    const content = match[2].trim();
+    
+    const newBlock: IBatchBlock = { content, children: [] };
+
+    // Pop the stack until we find the parent level
+    while (stack.length > 0 && stack[stack.length - 1].level >= indentLevel) {
+      stack.pop();
+    }
+
+    if (stack.length === 0) {
+      root.push(newBlock); // Top level block
+    } else {
+      stack[stack.length - 1].block.children!.push(newBlock); // Child block
+    }
+
+    stack.push({ level: indentLevel, block: newBlock });
+  }
+
+  return root;
+}

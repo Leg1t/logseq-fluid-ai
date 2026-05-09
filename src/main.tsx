@@ -17,6 +17,7 @@ import {
   getOrCreateAiChatPage,
   createNewAiChatPage,
   sanitizeForLogseq,
+  parseMarkdownToTree,
 } from './utils';
 
 // ─── streaming helper ─────────────────────────────────────────────────────────
@@ -413,11 +414,27 @@ function main() {
           break;
         }
 
+
         case PromptOutputType.insert: {
           if (!parser) {
-            await logseq.Editor.insertBlock(uuid, `${response}${tag}`, {
-              sibling: sibling ?? false,
-            });
+            if (multiBlock) {
+              const tree = parseMarkdownToTree(response);
+              
+              tree.forEach(node => {
+                if (!node.content.includes(tag)) {
+                  node.content = `${node.content}${tag}`;
+                }
+              });
+              await logseq.Editor.insertBatchBlock(uuid, tree, {
+                before: false,
+                sibling: sibling ?? false,
+              });
+            } else {
+              await logseq.Editor.insertBlock(uuid, `${response}${tag}`, {
+                sibling: sibling ?? false,
+              });
+            }
+
           } else if (structured) {
             const record = await (parser as StructuredOutputParser<any>).parse(response);
             await logseq.Editor.updateBlock(uuid, `${block.content}${tag}\n`);

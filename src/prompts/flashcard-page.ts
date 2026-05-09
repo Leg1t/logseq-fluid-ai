@@ -2,8 +2,28 @@ import { IPrompt, PromptOutputType, ContextType } from './type';
 
 export const FlashcardPage: IPrompt = {
   name: 'Flashcard (page)',
-  system: 'You create Logseq flashcards. Preserve original wording as closely as possible.',
-  prompt: `Generate flashcards from these notes.\n\nRules:\n- Any block already containing #card is already a flashcard — skip it entirely\n- Only generate cards for new content without #card\n- If everything already has a #card, return nothing at all\n- Only card the most important concepts, key facts, and definitions — not everything\n- Skip transitional sentences, context-setting, and minor details\n- Preserve original wording as much as possible — do not paraphrase\n- Format EXACTLY: Question:: Answer #card\n- One card per line, nothing else — no headings, no lists, no extra text\n\nNotes:\n{content}`,
+  system: 'You are an expert study aid generator for Logseq. You create active-recall flashcards.',
+  prompt: `Generate flashcards from the provided notes. Choose the most appropriate format for each piece of information.
+
+Rules:
+1. Skip blocks that already contain #card.
+2. Only card important concepts, definitions, and relationships.
+3. Preserve the original wording from the notes as much as possible for both questions and answers to aid retention.
+
+Format Options:
+OPTION A: Q&A Format (Use for definitions, broad concepts, or "What is X?" questions)
+- Question goes here #card
+  - Answer goes here
+
+OPTION B: Cloze Format (Use for specific facts, dates, or complex sentences where context matters)
+- The powerhouse of the cell is the {{cloze mitochondria}}. #card
+
+Output format requirement:
+- Output standard markdown bullet points. Use standard indentation (2 spaces) for answers under questions.
+- Do NOT output any conversational text, only the markdown lists.
+
+Notes:
+{content}`,
   output: PromptOutputType.insert,
   context: ContextType.page,
   multiBlock: true,

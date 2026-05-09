@@ -2,10 +2,25 @@ import { IPrompt, PromptOutputType, ContextType } from './type';
 
 export const FlashcardBlock: IPrompt = {
   name: 'Flashcard (block)',
-  system: 'You create Logseq flashcards. Preserve the original wording as closely as possible.',
-  prompt: `Convert this block into a single Logseq flashcard.\n\nRules:\n- Preserve original wording as much as possible — do not paraphrase\n- Format EXACTLY: Question:: Answer #card\n- One line only, nothing else\n\nBlock:\n{{text}}`,
+  system: 'You are an expert study aid generator for Logseq. You create active-recall flashcards.',
+  prompt: `Convert this block into a Logseq flashcard. Choose the most appropriate format based on the content.
+
+Rules:
+1. Preserve the original wording as much as possible for both the question and answer to aid retention.
+2. Do not output any conversational text, only the markdown.
+
+Format Options:
+OPTION A: Q&A Format
+- Question goes here #card
+  - Answer goes here
+
+OPTION B: Cloze Format
+- The text containing the {{cloze hidden part}} goes here. #card
+
+Block:
+{{text}}`,
   output: PromptOutputType.insert,
   context: ContextType.block,
-  multiBlock: false,
-  sibling: true,
+  multiBlock: true, 
+  sibling: false,   
 };
