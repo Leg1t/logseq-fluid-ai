@@ -365,27 +365,44 @@ function main() {
         }
         return;
       }
-
+      
       // ── 7. non-streaming call ────────────────────────────────────────────────
       const message  = await model.call(input);
       const rawResponse = message.content.toString();
 
-      // Apply sanitizer — singleBlock=false for multiBlock (each line its own block)
-      const response = sanitizeForLogseq(rawResponse, !multiBlock);
+      // Apply sanitizer for single blocks (we will use rawResponse for multi-blocks)
+      let response = sanitizeForLogseq(rawResponse, !multiBlock);
 
-      // Multi-block insert: one sibling per non-empty line
+      // Multi-block insert: Smart Tree Parsing
       if (multiBlock && output === PromptOutputType.insert && !useParser) {
-        const lines = response.split('\n').filter((l) => l.trim());
-        let prevUuid = uuid;
-        for (const line of lines) {
-          const nb = await logseq.Editor.insertBlock(prevUuid, `${line}${tag}`, {
-            before: false,
-            sibling: true,
-          });
-          if (nb) prevUuid = nb.uuid;
-        }
-        return;
+        // 1. Pass the RAW AI response into our smart parser
+        const tree = parseMarkdownToTree(rawResponse); 
+        
+        // 2. Add tags and safely sanitize the individual nodes
+        tree.forEach(node => {
+          node.content = sanitizeForLogseq(node.content, true);
+          if (!node.content.includes(tag)) {
+            node.content = `${node.content} ${tag}`.trim();
+          }
+          if (node.children) {
+            node.children.forEach(child => {
+              child.content = sanitizeForLogseq(child.content, true);
+              if (!child.content.includes(tag)) {
+                child.content = `${child.content} ${tag}`.trim();
+              }
+            });
+          }
+        });
+
+        // 3. Insert the perfectly nested tree natively
+        await logseq.Editor.insertBatchBlock(uuid, tree, {
+          before: false,
+          sibling: sibling ?? false, // Uses the setting from your prompt files!
+        });
+        
+        return; 
       }
+
 
       // ── 8. standard output ───────────────────────────────────────────────────
       let parser: StructuredOutputParser<any> | CustomListOutputParser | undefined;
@@ -414,39 +431,55 @@ function main() {
           break;
         }
 
-
         case PromptOutputType.insert: {
           if (!parser) {
             if (multiBlock) {
-              const tree = parseMarkdownToTree(response);
+              // 1. Pass the RAW AI response into our smart parser
+              const tree = parseMarkdownToTree(rawResponse);
               
+              // 2. Safely sanitize and tag each block individually
               tree.forEach(node => {
+                // Sanitize the parent node content safely
+                node.content = sanitizeForLogseq(node.content, true);
                 if (!node.content.includes(tag)) {
-                  node.content = `${node.content}${tag}`;
+                  node.content = `${node.content} ${tag}`.trim();
+                }
+                
+                // Sanitize the child node content safely
+                if (node.children) {
+                  node.children.forEach(child => {
+                    child.content = sanitizeForLogseq(child.content, true);
+                    if (!child.content.includes(tag)) {
+                      child.content = `${child.content} ${tag}`.trim();
+                    }
+                  });
                 }
               });
+
+              // 3. Insert the perfectly nested tree
               await logseq.Editor.insertBatchBlock(uuid, tree, {
                 before: false,
                 sibling: sibling ?? false,
               });
             } else {
-              await logseq.Editor.insertBlock(uuid, `${response}${tag}`, {
+              // --- ORIGINAL SINGLE BLOCK LOGIC ---
+              await logseq.Editor.insertBlock(uuid, `${response} ${tag}`.trim(), {
                 sibling: sibling ?? false,
               });
             }
 
           } else if (structured) {
             const record = await (parser as StructuredOutputParser<any>).parse(response);
-            await logseq.Editor.updateBlock(uuid, `${block.content}${tag}\n`);
+            await logseq.Editor.updateBlock(uuid, `${block.content} ${tag}\n`);
             for (const [key, value] of Object.entries(record))
               await logseq.Editor.insertBlock(uuid, `${key}: ${value}`);
           } else if (listed) {
             const list = (await parser!.parse(response)) as string[];
-            await logseq.Editor.updateBlock(uuid, `${block.content}${tag}\n`);
+            await logseq.Editor.updateBlock(uuid, `${block.content} ${tag}\n`);
             for (const item of list)
               await logseq.Editor.insertBlock(uuid, item);
           }
-          break;
+          break; 
         }
 
         case PromptOutputType.replace:

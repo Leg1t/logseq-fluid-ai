@@ -234,35 +234,45 @@ export interface IBatchBlock {
 }
 
 /**
- * Parses markdown lists (e.g. "- Question\n  - Answer") into a Logseq block tree.
+ * A general-purpose markdown list parser.
+ * Builds a Logseq block tree based STRICTLY on whitespace indentation.
  */
 export function parseMarkdownToTree(markdown: string): IBatchBlock[] {
   const lines = markdown.split('\n').filter(l => l.trim().length > 0);
   const root: IBatchBlock[] = [];
-  const stack: { level: number; block: IBatchBlock }[] = [];
+  
+  // Stack keeps track of the current hierarchy chain
+  const stack: { indent: number, block: IBatchBlock }[] = [];
 
-  for (const line of lines) {
-    // Find leading whitespace to determine level, and strip the "- " or "* " marker
-    const match = line.match(/^(\s*)(?:[-*]\s)?(.*)/);
-    if (!match) continue;
-    
-    const indentLevel = match[1].length;
-    const content = match[2].trim();
-    
-    const newBlock: IBatchBlock = { content, children: [] };
+  for (let line of lines) {
+    // 1. Count the exact number of leading spaces
+    const indentMatch = line.match(/^(\s*)/);
+    const indentLevel = indentMatch ? indentMatch[1].length : 0;
 
-    // Pop the stack until we find the parent level
-    while (stack.length > 0 && stack[stack.length - 1].level >= indentLevel) {
+    // 2. Clean the line (remove spaces, dashes, bullets, and Q/A markers)
+    const cleanContent = line
+      .replace(/^[\s\-*•]+/, '')
+      .replace(/^(Q|A):\s*/i, '')
+      .trim();
+
+    if (!cleanContent) continue;
+
+    const newBlock: IBatchBlock = { content: cleanContent, children: [] };
+
+    // 3. Go back up the tree until we find the parent (a block with FEWER spaces)
+    while (stack.length > 0 && stack[stack.length - 1].indent >= indentLevel) {
       stack.pop();
     }
 
+    // 4. Attach the block to its parent, or to the root if it has no parent
     if (stack.length === 0) {
-      root.push(newBlock); // Top level block
+      root.push(newBlock); // It's a top-level block
     } else {
-      stack[stack.length - 1].block.children!.push(newBlock); // Child block
+      stack[stack.length - 1].block.children!.push(newBlock); // It's a child block
     }
 
-    stack.push({ level: indentLevel, block: newBlock });
+    // 5. Add this block to the stack so future lines can nest under it
+    stack.push({ indent: indentLevel, block: newBlock });
   }
 
   return root;
