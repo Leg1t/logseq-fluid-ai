@@ -42,6 +42,14 @@ export interface IPrompt {
   noPdf?: boolean;
 
   /**
+   * Marks a prompt as a flashcard generator. When set, multi-block output is
+   * post-processed to GUARANTEE Logseq card structure: every top-level card
+   * block gets `#card`, and single-brace clozes are rewritten to `{{cloze …}}`.
+   * This makes cards robust to the model occasionally forgetting the syntax.
+   */
+  flashcard?: boolean;
+
+  /**
    * Split the response on newlines and insert one sibling block per line.
    * Overrides streaming for that run (full response needed before splitting).
    */

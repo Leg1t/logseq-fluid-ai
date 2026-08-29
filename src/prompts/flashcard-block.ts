@@ -19,7 +19,7 @@ OPTION B — Cloze (use for a specific term, name, or number):
 - The text containing the {{cloze hidden part}} goes here. #card
 
 Output rules:
-- For Q&A, the question MUST be a real question ending in "?", and the answer MUST be an indented child bullet.
+- For Q&A, the question MUST be a real question ending in "?", and the answer MUST be ONE indented child bullet — a single block, never split into sub-bullets. Multi-part answers use semicolons inline, or become separate cards.
 - Never use "Q:" or "A:" prefixes.
 - Output only the card bullets — no preamble, no explanation, and no parenthetical remarks about formatting or your reasoning.
 
@@ -28,5 +28,6 @@ Block:
   output: PromptOutputType.insert,
   context: ContextType.block,
   multiBlock: true,
+  flashcard: true,
   sibling: false,
 };

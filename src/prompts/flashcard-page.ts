@@ -37,11 +37,12 @@ WRITING GOOD CARDS
 - Each question must stand on its own: no "this", "it", "the author", or "the above" — name the subject explicitly so the card still makes sense in isolation months later.
 - Prefer questions that ask why, how, or how things relate over questions that ask for a bare fact.
 - Test one idea per card. If a note holds several ideas, make several cards.
+- Write each answer as ONE block — never split it into sub-bullets beneath the question. If an answer has several parts, prefer a separate card per part; if the parts are a genuine set worth recalling together (e.g. the stages of a process), keep them in a single block separated by semicolons or an inline "•". This is a structure rule, not a brevity rule: an answer may be as long as the idea genuinely needs.
 - For book-sourced answers, keep to the core point in plain language; you may keep key original wording but trim it. For reader-sourced points, keep the reader's own phrasing.
 - Use a cloze when a single term or name is the thing worth recalling. Use Q&A for definitions, mechanisms, and relationships.
 
 FORMAT
-Q&A — the question is the bullet, the answer is an indented child bullet:
+Q&A — the question is the bullet, the answer is ONE indented child bullet (a single block, never further sub-bullets):
 - Why did <X> happen? #card
   - <the answer>
 
@@ -62,5 +63,6 @@ Notes:
   context: ContextType.page,
   noPdf: true,
   multiBlock: true,
+  flashcard: true,
   sibling: false,
 };

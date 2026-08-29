@@ -146,6 +146,27 @@ async function handleSidePageOutput(params: {
   });
 }
 
+// ─── flashcard structure guarantees ──────────────────────────────────────────
+
+/** Rewrite a single-brace {…} cloze into Logseq's {{cloze …}} syntax. */
+function ensureClozeSyntax(text: string): string {
+  if (/\{\{\s*cloze/i.test(text)) return text;       // already a proper cloze
+  if (!/\{[^{}]+\}/.test(text)) return text;          // nothing to convert
+  return text.replace(/\{([^{}]+)\}/, '{{cloze $1}}'); // convert first single-brace group
+}
+
+/**
+ * Guarantee a top-level flashcard block is well-formed:
+ * - a childless block is treated as a cloze → fix its brace syntax
+ * - every card block must carry #card (answers/children never do)
+ */
+function ensureCardStructure(content: string, hasChildren: boolean): string {
+  let out = content;
+  if (!hasChildren) out = ensureClozeSyntax(out);
+  if (!/#card\b/.test(out)) out = `${out} #card`;
+  return out;
+}
+
 // ─── prompt registration ──────────────────────────────────────────────────────
 
 function getPrompts(): IPrompt[] {
@@ -180,6 +201,7 @@ function main() {
       outputMode             = OutputMode.inline,
       usePdf                 = false,
       noPdf                  = false,
+      flashcard              = false,
       multiBlock             = false,
       streaming: promptStreaming,
       sibling                = false,
@@ -382,6 +404,12 @@ function main() {
         // 2. Add tags and safely sanitize the individual nodes
         tree.forEach(node => {
           node.content = sanitizeForLogseq(node.content, true);
+          if (flashcard) {
+            node.content = ensureCardStructure(
+              node.content,
+              !!(node.children && node.children.length > 0),
+            );
+          }
           if (!node.content.includes(tag)) {
             node.content = `${node.content} ${tag}`.trim();
           }
@@ -442,6 +470,12 @@ function main() {
               tree.forEach(node => {
                 // Sanitize the parent node content safely
                 node.content = sanitizeForLogseq(node.content, true);
+                if (flashcard) {
+                  node.content = ensureCardStructure(
+                    node.content,
+                    !!(node.children && node.children.length > 0),
+                  );
+                }
                 if (!node.content.includes(tag)) {
                   node.content = `${node.content} ${tag}`.trim();
                 }
