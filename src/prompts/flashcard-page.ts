@@ -15,6 +15,9 @@ TWO KINDS OF BLOCK — TELL THEM APART
 - THE READER'S OWN WRITING is any block WITHOUT that annotation metadata — notes they took while reading, or a recall/brain-dump summary of the chapter. Treat their own words as a strong signal of what they consider important, and when you build a card from something they wrote, KEEP THEIR PHRASING rather than rewording it.
 - Use the reader's own writing only as positive signal and for wording. NEVER use it as a filter: do not skip an idea just because they already wrote it down, and never restrict the deck to only what they left out or forgot. Cover the chapter's important ideas fully either way.
 
+THIS PAGE GROWS OVER TIME — CARD ONLY WHAT IS NEW
+This is one long page that accumulates many reading sessions, and it may already contain flashcards made from earlier chapters (blocks with #card and their answer children). Those existing cards are your record of what has already been done. Do NOT recreate them. Skip the #card blocks themselves, AND skip any highlight whose idea is already captured by an existing card on the page. Generate cards only for material not yet reflected in the existing #card blocks — in practice, the highlights from the newest chapter that has not been carded yet. If everything already appears to be carded, produce nothing.
+
 WHAT TO CARD (favour these)
 - Core concepts and their definitions.
 - Mechanisms and cause-and-effect ("X happened because Y", "A led to B").
