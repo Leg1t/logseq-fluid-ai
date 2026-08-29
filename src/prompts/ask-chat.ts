@@ -14,7 +14,7 @@ No introductions, no sign-offs, no filler.`,
 """
 Reply to the last message only.`,
   output: PromptOutputType.insert,
-  model: 'gpt-4o',
+  model: 'gpt-5.6-terra',
   context: ContextType.sectionAbove,
   outputMode: OutputMode.inline,
   sibling: true,

@@ -36,6 +36,12 @@ export interface IPrompt {
   usePdf?: boolean;
 
   /**
+   * Force PDF context OFF for this prompt, even when settings.autoPdf is on.
+   * Use for page-context prompts that should read the notes only.
+   */
+  noPdf?: boolean;
+
+  /**
    * Split the response on newlines and insert one sibling block per line.
    * Overrides streaming for that run (full response needed before splitting).
    */

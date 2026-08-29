@@ -14,7 +14,7 @@ Take your time to thoroughly explain concepts, provide examples, and explore nua
 """
 Provide a deep, comprehensive, and well-researched reply to the last message only.`,
   output: PromptOutputType.insert,
-  model: 'gpt-4o',
+  model: 'gpt-5.6-terra',
   context: ContextType.sectionAbove,
   outputMode: OutputMode.inline,
   sibling: true,

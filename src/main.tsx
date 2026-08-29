@@ -179,6 +179,7 @@ function main() {
       context: contextType   = ContextType.block,
       outputMode             = OutputMode.inline,
       usePdf                 = false,
+      noPdf                  = false,
       multiBlock             = false,
       streaming: promptStreaming,
       sibling                = false,
@@ -240,7 +241,7 @@ function main() {
 
       // ── 3. PDF Context ───────────────────────────────────────────────────────
       const pdfPath = currentPage ? await getPagePdfPath(currentPage.name) : null;
-      const shouldUsePdf = usePdf || (globalAutoPdf && !!pdfPath);
+      const shouldUsePdf = !noPdf && (usePdf || (globalAutoPdf && !!pdfPath));
 
       let pdfText = '';
       if (shouldUsePdf && pdfPath) {

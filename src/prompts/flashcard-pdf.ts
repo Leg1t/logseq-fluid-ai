@@ -1,28 +1,28 @@
+
 import { IPrompt, PromptOutputType, ContextType } from './type';
 
 export const FlashcardPdf: IPrompt = {
   name: 'Flashcards (from PDF only)',
   system: 'You are an expert study aid generator for Logseq. You create active-recall flashcards.',
-  prompt: `Generate flashcards from the [PDF content] for the most important concepts in the material. Choose the most appropriate format for each piece of information.
+  prompt: `Generate flashcards from the [PDF content] for the most important material. Choose the best format for each idea.
 
 Rules:
-1. Only card the most important concepts, key facts, definitions, and core mechanisms.
-2. The Answer (or {{cloze}} text) should preserve the original wording from the text to aid retention, but you MUST rewrite the Question so it actually functions as a prompt (and ends with a "?").
-3. Skip transitional text and minor examples.
+1. Only card the important concepts, key facts, definitions, and core mechanisms. One idea per card.
+2. Keep the answer (or {{cloze}} text) faithful to the source wording to aid retention, but rewrite the question so it works as a real prompt and ends with a "?".
+3. Skip transitional text, minor examples, and filler.
 
 Format Options:
-OPTION A: Q&A Format (Use for definitions and broad concepts)
+OPTION A — Q&A (use for definitions and broader concepts):
 - What is the powerhouse of the cell? #card
-  - The mitochondria. (MUST be indented with exactly 2 spaces)
+  - The mitochondria.
 
-OPTION B: Cloze Format (Use for specific facts)
+OPTION B — Cloze (use for a specific term, name, or number):
 - The powerhouse of the cell is the {{cloze mitochondria}}. #card
 
-CRITICAL FORMATTING RULES:
-- For Option A, the Question MUST be a real question ending in a "?". Do not just use a statement.
-- If using Option A, the answer line MUST begin with exactly 2 spaces followed by a dash. 
-- Never use Q: or A: prefixes.
-- Output standard markdown bullet points only.
+Output rules:
+- For Q&A, the question MUST be a real question ending in "?", and the answer MUST be an indented child bullet.
+- Never use "Q:" or "A:" prefixes.
+- Output only the card bullets — no preamble, no explanation, and no parenthetical remarks about formatting or your reasoning.
 
 {content}`,
   output: PromptOutputType.insert,
@@ -31,5 +31,5 @@ CRITICAL FORMATTING RULES:
   usePdf: true,
   multiBlock: true,
   sibling: false,
-  maxTokens: 20000, 
+  maxTokens: 20000,
 };
